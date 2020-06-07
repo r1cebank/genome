@@ -1,5 +1,5 @@
 [package]
-name = "genome-rust"
+name = "genome"
 version = "0.1.0"
 authors = ["r1cebank <siyuangao@gmail.com>"]
 edition = "2018"
