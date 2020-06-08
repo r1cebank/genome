@@ -33,7 +33,7 @@ impl std::convert::From<String> for Marker {
             .map(str::from_utf8)
             .collect::<Result<Vec<&str>, _>>()
             .unwrap();
-        let decoded: ArrayVec<_> = sub_chunks.iter().map(|c| u8::from_str_radix(c, 16).expect("Decoding error")).collect();
+        let decoded: ArrayVec<_> = sub_chunks.iter().map(|c| u8::from_str_radix(c, 16).expect("Marker decoding error")).collect();
         let decoded_array: [u8; 4] = decoded.into_inner().unwrap();
         return Marker {
             value: f32::from_be_bytes(decoded_array)
