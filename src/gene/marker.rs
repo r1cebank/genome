@@ -5,7 +5,7 @@ use rand_distr::StandardNormal;
 
 #[derive(Copy, Clone)]
 pub struct Marker {
-    pub value: f32
+    pub value: f32,
 }
 
 impl Marker {
@@ -14,15 +14,30 @@ impl Marker {
             value: thread_rng().sample(StandardNormal)
         }
     }
+    pub fn to_string(&self) -> String {
+        let byte_marker = self.value.to_be_bytes();
+
+        byte_marker.iter()
+            .map(|val| format!("{:0>2x}", val))
+            .collect()
+    }
 }
 
 impl std::convert::From<Marker> for String {
     fn from(marker: Marker) -> String {
         let byte_marker = marker.value.to_be_bytes();
-        println!("Original bytes: {:?}", byte_marker);
-        return byte_marker.iter()
+
+        byte_marker.iter()
             .map(|val| format!("{:0>2x}", val))
-            .collect();
+            .collect()
+    }
+}
+
+impl std::convert::From<f32> for Marker {
+    fn from(marker: f32) -> Marker {
+        Marker {
+            value: marker
+        }
     }
 }
 
@@ -33,9 +48,10 @@ impl std::convert::From<String> for Marker {
             .map(str::from_utf8)
             .collect::<Result<Vec<&str>, _>>()
             .unwrap();
-        let decoded: ArrayVec<_> = sub_chunks.iter().map(|c| u8::from_str_radix(c, 16).expect("Marker decoding error")).collect();
+        let decoded: ArrayVec<_> = sub_chunks.iter().map(|c| u8::from_str_radix(c, 16).unwrap()).collect::<ArrayVec<_>>();
         let decoded_array: [u8; 4] = decoded.into_inner().unwrap();
-        return Marker {
+
+        Marker {
             value: f32::from_be_bytes(decoded_array)
         }
     }

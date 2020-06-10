@@ -1,11 +1,9 @@
 mod gene;
-
-use rand::prelude::*;
-use rand_distr::StandardNormal;
+mod dna;
 
 fn main() {
-    let mut rng = rand::thread_rng();
-    let val: f64 = rng.sample(StandardNormal);
-    let gene = gene::Gene::new();
-    println!("Original Value: {:?}", gene.markers.value);
+    let dna = dna::DNA::new(2, 2);
+    let dna2 = dna::DNA::from(dna.to_string());
+    println!("Original Value: {:?}", dna.to_string());
+    println!("Restored Value: {:?}", dna2.to_string());
 }
