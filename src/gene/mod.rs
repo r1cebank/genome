@@ -61,6 +61,9 @@ impl Gene {
     fn set_marker(&mut self, target: usize, value: f32) {
         self.markers.get_mut(target).unwrap().value = value;
     }
+    pub fn compare(left_gene: Gene, right_gene: Gene) -> bool {
+        left_gene.to_string() == right_gene.to_string()
+    }
     pub fn mutate(&mut self) {
         let mutation_type = mutation::get_mutation_type();
         let target = thread_rng().gen_range(0, self.markers.len());
@@ -157,5 +160,12 @@ mod tests {
         let restored_gene: Gene = string_value.clone().into();
 
         assert!(Gene::is_equal(original_gene, restored_gene));
+    }
+    #[test]
+    fn should_set_marker() {
+        let mut gene = Gene::new(1);
+        gene.set_marker(0, 0 as f32);
+        gene.set_marker(1, 0 as f32);
+        assert_eq!(gene.to_string(), "0000000000000000");
     }
 }
