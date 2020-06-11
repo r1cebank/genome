@@ -1,6 +1,9 @@
 mod marker;
+mod mutation;
 use std::str;
 use marker::Marker;
+use rand::prelude::*;
+use mutation::MutationType;
 
 pub struct Gene {
     pub num_markers: u16,
@@ -54,6 +57,35 @@ impl Gene {
     }
     pub fn to_string(&self) -> String {
         self.markers.iter().map(|m| String::from(*m)).collect::<String>()
+    }
+    fn set_marker(&mut self, target: usize, value: f32) {
+        self.markers.get_mut(target).unwrap().value = value;
+    }
+    pub fn mutate(&mut self) {
+        let mutation_type = mutation::get_mutation_type();
+        let target = thread_rng().gen_range(0, self.markers.len());
+        match mutation_type {
+            MutationType::DELETE => { self.set_marker(target, 0 as f32)}
+            MutationType::DUPLICATION => {
+                // exclude the influence marker, allow noop
+                let dup_target = thread_rng().gen_range(1, self.markers.len());
+                self.set_marker(dup_target, self.markers[target].value);
+            }
+            MutationType::NEW => {
+                let new_marker = Marker::new();
+                self.set_marker(target, new_marker.value);
+            }
+            MutationType::REVERSAL => {
+                // exclude the influence marker, allow noop
+                let swap_target = thread_rng().gen_range(1, self.markers.len());
+                let swap_value = self.markers[swap_target].value;
+                self.set_marker(swap_target, self.markers[target].value);
+                self.set_marker(target, swap_value);
+            }
+            MutationType::SHIFT => {
+                self.markers.shuffle(&mut thread_rng());
+            }
+        }
     }
 }
 

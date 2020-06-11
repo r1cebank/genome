@@ -2,8 +2,8 @@ mod gene;
 mod dna;
 
 fn main() {
-    let dna = dna::DNA::new(2, 2);
-    let dna2 = dna::DNA::from(dna.to_string());
-    println!("Original Value: {:?}", dna.to_string());
-    println!("Restored Value: {:?}", dna2.to_string());
+    let mut gene = gene::Gene::new(2);
+    println!("Before: {}", gene.to_string());
+    gene.mutate();
+    println!("After:  {}", gene.to_string());
 }
