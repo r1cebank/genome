@@ -27,7 +27,7 @@ impl DNA {
                 gene_size: left_dna.gene_size,
                 genes: (0..left_dna.pool_size)
                     .map(|i| {
-                        if rng.gen::<f32>() > 0.5 {
+                        if rng.gen::<f32>() >= 0.5 {
                             left_dna.genes[i as usize].to_string()
                         } else {
                             right_dna.genes[i as usize].to_string()
@@ -38,6 +38,25 @@ impl DNA {
             }),
             false => None,
         }
+    }
+    pub fn compare(left_dna: DNA, right_dna: DNA) -> f64 {
+        let mut same_markers = 0;
+        if left_dna.pool_size != right_dna.pool_size {
+            return 0 as f64;
+        }
+        (0..left_dna.pool_size).for_each(|i| {
+            if left_dna.genes[i as usize].to_string() == right_dna.genes[i as usize].to_string() {
+                same_markers = same_markers + 1;
+            }
+        });
+        same_markers as f64 / left_dna.pool_size as f64
+    }
+    pub fn to_latent_vec(&self) -> Vec<f32> {
+        self.genes
+            .iter()
+            .map(|g| g.markers.iter().map(|m| m.value).collect::<Vec<f32>>())
+            .collect::<Vec<Vec<f32>>>()
+            .concat()
     }
     pub fn to_string(&self) -> String {
         let pool_size_hex: String = self
@@ -117,7 +136,7 @@ impl std::convert::From<String> for DNA {
         let gene_size = u16::from_be_bytes(gene_size_size_array);
         let genes = genes_hex
             .as_bytes()
-            .chunks(8 * gene_size as usize)
+            .chunks(8 * (gene_size + 1) as usize) // Include influence in size
             .map(|x| str::from_utf8(x).unwrap())
             .map(String::from)
             .collect::<Vec<String>>();
@@ -135,8 +154,11 @@ mod tests {
     use super::*;
     #[test]
     fn can_be_converted_and_back() {
-        let dna = DNA::new(2, 2);
+        let dna = DNA::new(4, 2);
         let dna2 = DNA::from(dna.to_string());
+        assert_eq!(dna.gene_size, dna2.gene_size);
+        assert_eq!(dna.pool_size, dna2.pool_size);
+        assert_eq!(dna.genes.len(), dna2.genes.len());
         assert_eq!(dna.to_string(), dna2.to_string());
     }
     #[test]
@@ -156,5 +178,19 @@ mod tests {
             Some(_) => assert!(false),
             None => assert!(true),
         };
+    }
+    #[test]
+    fn check_merged_gene_ratio() {
+        let dna1 = DNA::new(512, 4);
+        let dna2 = DNA::new(512, 4);
+        let dna1str = dna1.to_string();
+        let dna2str = dna2.to_string();
+        let child = DNA::merge(dna1, dna2).unwrap();
+        let child_str = child.to_string();
+        let parent1_ratio = DNA::compare(DNA::from(child_str.clone()), DNA::from(dna1str));
+        let parent2_ratio = DNA::compare(DNA::from(child_str), DNA::from(dna2str));
+        assert!(parent1_ratio != 0 as f64);
+        assert!(parent2_ratio != 0 as f64);
+        assert!(parent1_ratio + parent2_ratio == 1 as f64);
     }
 }
