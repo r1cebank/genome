@@ -1,9 +1,9 @@
 mod marker;
 mod mutation;
-use std::str;
+use crate::utils;
 use marker::Marker;
-use rand::prelude::*;
 use mutation::MutationType;
+use rand::prelude::*;
 
 pub struct Gene {
     pub num_markers: u16,
@@ -18,7 +18,9 @@ impl Gene {
         }
         Gene {
             num_markers: num_markers,
-            markers: (0..num_markers + 1).map(|_| marker::Marker::new()).collect()
+            markers: (0..num_markers + 1)
+                .map(|_| marker::Marker::new())
+                .collect(),
         }
     }
     pub fn is_equal(left_gene: Gene, right_gene: Gene) -> bool {
@@ -44,7 +46,7 @@ impl Gene {
         // position + 1 is used instead of position since first element is influence
         match self.markers.get(position + 1) {
             Some(m) => Some(m.value),
-            None => None
+            None => None,
         }
     }
     pub fn get_markers(&self) -> Vec<f32> {
@@ -56,7 +58,10 @@ impl Gene {
             .collect()
     }
     pub fn to_string(&self) -> String {
-        self.markers.iter().map(|m| String::from(*m)).collect::<String>()
+        self.markers
+            .iter()
+            .map(|m| String::from(*m))
+            .collect::<String>()
     }
     fn set_marker(&mut self, target: usize, value: f32) {
         self.markers.get_mut(target).unwrap().value = value;
@@ -68,7 +73,7 @@ impl Gene {
         let mutation_type = mutation::get_mutation_type();
         let target = thread_rng().gen_range(0, self.markers.len());
         match mutation_type {
-            MutationType::DELETE => { self.set_marker(target, 0 as f32)}
+            MutationType::DELETE => self.set_marker(target, 0 as f32),
             MutationType::DUPLICATION => {
                 // exclude the influence marker, allow noop
                 let dup_target = thread_rng().gen_range(1, self.markers.len());
@@ -94,22 +99,23 @@ impl Gene {
 
 impl std::convert::From<Gene> for String {
     fn from(gene: Gene) -> String {
-        gene.markers.iter().map(|m| String::from(*m)).collect::<String>()
+        gene.markers
+            .iter()
+            .map(|m| String::from(*m))
+            .collect::<String>()
     }
 }
 
-
 impl std::convert::From<String> for Gene {
     fn from(gene: String) -> Gene {
-        let markers = gene.as_bytes()
-            .chunks(8)
-            .map(|x| str::from_utf8(x).unwrap())
-            .map(String::from)
-            .collect::<Vec<String>>();
+        let markers = utils::partition_string(&gene, 8);
 
         Gene {
             num_markers: markers.len() as u16,
-            markers: markers.iter().map(|m| Marker::from(m.clone())).collect()
+            markers: markers
+                .iter()
+                .map(|m| Marker::from(String::from(*m)))
+                .collect(),
         }
     }
 }
@@ -149,7 +155,7 @@ mod tests {
         let gene = Gene::new(2);
         match gene.get_marker(3) {
             Some(_) => assert!(false),
-            None => assert!(true)
+            None => assert!(true),
         }
     }
     #[test]

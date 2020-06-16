@@ -1,6 +1,6 @@
 mod dna;
 mod gene;
-
+mod utils;
 fn main() {
     let dna1 = dna::DNA::new(512, 4);
     let dna2 = dna::DNA::new(512, 4);

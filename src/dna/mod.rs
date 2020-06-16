@@ -1,7 +1,7 @@
 use crate::gene::Gene;
+use crate::utils;
 use arrayvec::ArrayVec;
 use rand::prelude::*;
-use std::str;
 
 pub struct DNA {
     pub pool_size: u16,
@@ -59,18 +59,8 @@ impl DNA {
             .concat()
     }
     pub fn to_string(&self) -> String {
-        let pool_size_hex: String = self
-            .pool_size
-            .to_be_bytes()
-            .iter()
-            .map(|val| format!("{:0>2x}", val))
-            .collect();
-        let gene_size_hex: String = self
-            .gene_size
-            .to_be_bytes()
-            .iter()
-            .map(|val| format!("{:0>2x}", val))
-            .collect();
+        let pool_size_hex: String = utils::u16_to_string(self.pool_size);
+        let gene_size_hex: String = utils::u16_to_string(self.gene_size);
 
         format!(
             "{}{}{}",
@@ -83,18 +73,8 @@ impl DNA {
 
 impl std::convert::From<DNA> for String {
     fn from(dna: DNA) -> String {
-        let pool_size_hex: String = dna
-            .pool_size
-            .to_be_bytes()
-            .iter()
-            .map(|val| format!("{:0>2x}", val))
-            .collect();
-        let gene_size_hex: String = dna
-            .gene_size
-            .to_be_bytes()
-            .iter()
-            .map(|val| format!("{:0>2x}", val))
-            .collect();
+        let pool_size_hex: String = utils::u16_to_string(dna.pool_size);
+        let gene_size_hex: String = utils::u16_to_string(dna.gene_size);
 
         format!(
             "{}{}{}",
@@ -111,34 +91,22 @@ impl std::convert::From<String> for DNA {
         let gene_size_hex = &dna[4..8];
         let genes_hex = &dna[8..];
 
-        let decoded_pool_size: ArrayVec<_> = pool_size_hex
-            .as_bytes()
-            .chunks(2)
-            .map(str::from_utf8)
-            .collect::<Result<Vec<&str>, _>>()
-            .unwrap()
+        let decoded_pool_size: ArrayVec<_> = utils::partition_str(pool_size_hex, 2)
             .iter()
             .map(|c| u8::from_str_radix(c, 16).unwrap())
             .collect::<ArrayVec<_>>();
         let decoded_pool_size_array: [u8; 2] = decoded_pool_size.into_inner().unwrap();
         let pool_size = u16::from_be_bytes(decoded_pool_size_array);
 
-        let gene_size_size: ArrayVec<_> = gene_size_hex
-            .as_bytes()
-            .chunks(2)
-            .map(str::from_utf8)
-            .collect::<Result<Vec<&str>, _>>()
-            .unwrap()
+        let gene_size_size: ArrayVec<_> = utils::partition_str(gene_size_hex, 2)
             .iter()
             .map(|c| u8::from_str_radix(c, 16).unwrap())
             .collect::<ArrayVec<_>>();
         let gene_size_size_array: [u8; 2] = gene_size_size.into_inner().unwrap();
         let gene_size = u16::from_be_bytes(gene_size_size_array);
-        let genes = genes_hex
-            .as_bytes()
-            .chunks(8 * (gene_size + 1) as usize) // Include influence in size
-            .map(|x| str::from_utf8(x).unwrap())
-            .map(String::from)
+        let genes = utils::partition_str(genes_hex, 8 * (gene_size + 1) as usize)
+            .iter()
+            .map(|s| String::from(*s))
             .collect::<Vec<String>>();
 
         DNA {
