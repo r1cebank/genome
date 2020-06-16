@@ -17,8 +17,9 @@ impl DNA {
             genes: (0..pool_size).map(|_| Gene::new(gene_size)).collect(),
         }
     }
-    pub fn merge(left_dna: DNA, right_dna: DNA) -> Option<DNA> {
-        let mut rng = thread_rng();
+    pub fn merge(left_dna: DNA, right_dna: DNA, mutate: bool) -> Option<DNA> {
+        let mut ration_rng = thread_rng();
+        let mut mutate_rng = thread_rng();
         match (left_dna.pool_size == right_dna.pool_size)
             && (left_dna.gene_size == right_dna.gene_size)
         {
@@ -27,13 +28,19 @@ impl DNA {
                 gene_size: left_dna.gene_size,
                 genes: (0..left_dna.pool_size)
                     .map(|i| {
-                        if rng.gen::<f32>() >= 0.5 {
+                        if ration_rng.gen::<f32>() >= 0.5 {
                             left_dna.genes[i as usize].to_string()
                         } else {
                             right_dna.genes[i as usize].to_string()
                         }
                     })
-                    .map(|g| Gene::from(g))
+                    .map(|g| {
+                        let mut gene = Gene::from(g);
+                        if mutate && mutate_rng.gen::<f32>() >= 0.9 {
+                            gene.mutate();
+                        }
+                        gene
+                    })
                     .collect(),
             }),
             false => None,
@@ -133,7 +140,7 @@ mod tests {
     fn can_be_merged() {
         let dna1 = DNA::new(2, 2);
         let dna2 = DNA::new(2, 2);
-        match DNA::merge(dna1, dna2) {
+        match DNA::merge(dna1, dna2, false) {
             Some(_) => assert!(true),
             None => assert!(false),
         };
@@ -142,7 +149,7 @@ mod tests {
     fn cannot_be_merged() {
         let dna1 = DNA::new(2, 2);
         let dna2 = DNA::new(3, 2);
-        match DNA::merge(dna1, dna2) {
+        match DNA::merge(dna1, dna2, false) {
             Some(_) => assert!(false),
             None => assert!(true),
         };
@@ -153,7 +160,7 @@ mod tests {
         let dna2 = DNA::new(512, 4);
         let dna1str = dna1.to_string();
         let dna2str = dna2.to_string();
-        let child = DNA::merge(dna1, dna2).unwrap();
+        let child = DNA::merge(dna1, dna2, false).unwrap();
         let child_str = child.to_string();
         let parent1_ratio = DNA::compare(DNA::from(child_str.clone()), DNA::from(dna1str));
         let parent2_ratio = DNA::compare(DNA::from(child_str), DNA::from(dna2str));

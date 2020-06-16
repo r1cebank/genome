@@ -13,7 +13,7 @@ fn main() {
     //     dna1.genes.len()
     // );
     // println!("Parent 2: {}", dna2.to_string());
-    let child = dna::DNA::merge(dna1, dna2).unwrap();
+    let child = dna::DNA::merge(dna1, dna2, false).unwrap();
     // println!("Child   : {}", child.to_string());
     // let parent = dna::DNA::from(dna1str.clone());
     // println!(
