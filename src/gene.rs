@@ -12,6 +12,15 @@ pub struct Gene {
 
 /// First marker is influence
 impl Gene {
+    /// Create a new gene
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    /// ```
     pub fn new(num_markers: u16) -> Gene {
         if num_markers < 1 {
             panic!("Markers needs to be more than 0");
@@ -23,6 +32,18 @@ impl Gene {
                 .collect(),
         }
     }
+    /// Compare is two gene is equal
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    /// let gene2 = Gene::new(2);
+    ///
+    /// let is_equal = Gene::is_equal(gene1, gene2);
+    /// ```
     pub fn is_equal(left_gene: Gene, right_gene: Gene) -> bool {
         if left_gene.markers.len() != right_gene.markers.len() {
             return false;
@@ -39,9 +60,31 @@ impl Gene {
 
         return result;
     }
+    /// Get influence for this gene
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    ///
+    /// let influence = gene1.get_influence();
+    /// ```
     pub fn get_influence(&self) -> f32 {
         self.markers[0].value
     }
+    /// Get markers at position for the gene, ignore influence
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    ///
+    /// let marker = gene1.get_marker(0);
+    /// ```
     pub fn get_marker(&self, position: usize) -> Option<f32> {
         // position + 1 is used instead of position since first element is influence
         match self.markers.get(position + 1) {
@@ -49,6 +92,17 @@ impl Gene {
             None => None,
         }
     }
+    /// Get all markers for the gene, ignore influence
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    ///
+    /// let markers = gene1.get_markers();
+    /// ```
     pub fn get_markers(&self) -> Vec<f32> {
         self.markers
             .iter()
@@ -57,6 +111,17 @@ impl Gene {
             .map(|(_, m)| m.value)
             .collect()
     }
+    /// Convert gene to string
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    ///
+    /// let gene_str = gene1.to_string();
+    /// ```
     pub fn to_string(&self) -> String {
         self.markers
             .iter()
@@ -66,9 +131,32 @@ impl Gene {
     fn set_marker(&mut self, target: usize, value: f32) {
         self.markers.get_mut(target).unwrap().value = value;
     }
+    /// Compare gene for equality
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    /// let gene2 = Gene::new(2);
+    ///
+    /// let is_same = Gene::compare(gene1, gene2);
+    /// ```
     pub fn compare(left_gene: Gene, right_gene: Gene) -> bool {
         left_gene.to_string() == right_gene.to_string()
     }
+    /// Mutate the gene, with 5 different types of mutation
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let mut gene1 = Gene::new(2);
+    ///
+    /// gene1.mutate();
+    /// ```
     pub fn mutate(&mut self) {
         let mutation_type = mutation::get_mutation_type();
         let target = thread_rng().gen_range(0, self.markers.len());
@@ -97,6 +185,17 @@ impl Gene {
     }
 }
 
+/// Convert gene to string
+///
+/// # Examples
+///
+/// ```
+/// use genome::Gene;
+///
+/// let gene1 = Gene::new(2);
+///
+/// let gene_str = String::from(gene1);
+/// ```
 impl std::convert::From<Gene> for String {
     fn from(gene: Gene) -> String {
         gene.markers
@@ -106,6 +205,19 @@ impl std::convert::From<Gene> for String {
     }
 }
 
+/// Convert string to Gene
+///
+/// # Examples
+///
+/// ```
+/// use genome::Gene;
+///
+/// let gene1 = Gene::new(2);
+///
+/// let gene_str = String::from(gene1);
+///
+/// let gene_copy = Gene::from(gene_str);
+/// ```
 impl std::convert::From<String> for Gene {
     fn from(gene: String) -> Gene {
         let markers = utils::partition_string(&gene, 8);

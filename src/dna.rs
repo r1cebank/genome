@@ -3,12 +3,24 @@ use crate::utils;
 use rand::prelude::*;
 
 pub struct DNA {
+    // The pool size, number of genes
     pub pool_size: u16,
+    // The amount of marker each gene has, each marker is f32
     pub gene_size: u16,
+    // The genes for this DNA sequence
     pub genes: Vec<Gene>,
 }
 
 impl DNA {
+    /// Constructs a new `DNA`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna = DNA::new(2, 2);
+    /// ```
     pub fn new(pool_size: u16, gene_size: u16) -> DNA {
         DNA {
             pool_size: pool_size,
@@ -16,6 +28,18 @@ impl DNA {
             genes: (0..pool_size).map(|_| Gene::new(gene_size)).collect(),
         }
     }
+    /// Merge two `DNA` into one
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna1 = DNA::new(2, 2);
+    /// let dna2 = DNA::new(2, 2);
+    ///
+    /// let merged = DNA::merge(dna1, dna2, false);
+    /// ```
     pub fn merge(left_dna: DNA, right_dna: DNA, mutate: bool) -> Option<DNA> {
         let mut ration_rng = thread_rng();
         let mut mutate_rng = thread_rng();
@@ -45,6 +69,21 @@ impl DNA {
             false => None,
         }
     }
+    /// Compare two `DNA` similarity, return the percentage of same genes
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna1 = DNA::new(256, 2);
+    /// let dna_str = dna1.to_string();
+    /// let dna2 = DNA::new(256, 2);
+    ///
+    /// let merged = DNA::merge(dna1, dna2, false).unwrap();
+    ///
+    /// let is_parent = DNA::compare(DNA::from(dna_str), merged) > 0.3;
+    /// ```
     pub fn compare(left_dna: DNA, right_dna: DNA) -> f64 {
         let mut same_markers = 0;
         if left_dna.pool_size != right_dna.pool_size {
@@ -57,6 +96,17 @@ impl DNA {
         });
         same_markers as f64 / left_dna.pool_size as f64
     }
+    /// Convert DNA to GAN latent vector
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna1 = DNA::new(2, 2);
+    ///
+    /// let latent = dna1.to_latent_vec();
+    /// ```
     pub fn to_latent_vec(&self) -> Vec<f32> {
         self.genes
             .iter()
@@ -64,6 +114,17 @@ impl DNA {
             .collect::<Vec<Vec<f32>>>()
             .concat()
     }
+    /// Convert DNA to string
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna1 = DNA::new(2, 2);
+    ///
+    /// let dna1_str = dna1.to_string();
+    /// ```
     pub fn to_string(&self) -> String {
         let pool_size_hex: String = utils::u16_to_string(self.pool_size);
         let gene_size_hex: String = utils::u16_to_string(self.gene_size);
@@ -77,6 +138,17 @@ impl DNA {
     }
 }
 
+/// Convert DNA to string
+///
+/// # Examples
+///
+/// ```
+/// use genome::DNA;
+///
+/// let dna1 = DNA::new(2, 2);
+///
+/// let dna1_str = String::from(dna1);
+/// ```
 impl std::convert::From<DNA> for String {
     fn from(dna: DNA) -> String {
         let pool_size_hex: String = utils::u16_to_string(dna.pool_size);
@@ -91,6 +163,18 @@ impl std::convert::From<DNA> for String {
     }
 }
 
+/// Convert DNA to string
+///
+/// # Examples
+///
+/// ```
+/// use genome::DNA;
+///
+/// let dna1 = DNA::new(2, 2);
+/// let dna1_str = dna1.to_string();
+///
+/// let dna_copy = DNA::from(dna1_str);
+/// ```
 impl std::convert::From<String> for DNA {
     fn from(dna: String) -> DNA {
         let pool_size_hex = &dna[0..4];
