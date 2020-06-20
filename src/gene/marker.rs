@@ -1,5 +1,4 @@
 use crate::utils;
-use arrayvec::ArrayVec;
 use rand::prelude::*;
 use rand_distr::StandardNormal;
 
@@ -38,15 +37,8 @@ impl std::convert::From<f32> for Marker {
 
 impl std::convert::From<String> for Marker {
     fn from(marker: String) -> Marker {
-        let sub_chunks = utils::partition_string(&marker, 2);
-        let decoded: ArrayVec<_> = sub_chunks
-            .iter()
-            .map(|c| u8::from_str_radix(c, 16).unwrap())
-            .collect::<ArrayVec<_>>();
-        let decoded_array: [u8; 4] = decoded.into_inner().unwrap();
-
         Marker {
-            value: f32::from_be_bytes(decoded_array),
+            value: utils::f32_from_str(&marker),
         }
     }
 }
