@@ -3,6 +3,13 @@ name = "genome"
 version = "0.1.0"
 authors = ["r1cebank <siyuangao@gmail.com>"]
 edition = "2018"
+description = "A simple package used to generate DNA used for GAN generator"
+documentation = "https://docs.rs/genome"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/r1cebank/genome"
+keywords = ["dna", "genome", "random"]
+categories = ["encoding", "science"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
