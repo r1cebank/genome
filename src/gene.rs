@@ -32,6 +32,20 @@ impl Gene {
                 .collect(),
         }
     }
+    /// Get sum of genes
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let gene1 = Gene::new(2);
+    ///
+    /// let sum = gene1.get_sum();
+    /// ```
+    pub fn get_sum(&self) -> f32 {
+        self.markers.iter().map(|m| m.value).sum()
+    }
     /// Compare is two gene is equal
     ///
     /// # Examples

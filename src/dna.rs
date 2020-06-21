@@ -28,6 +28,24 @@ impl DNA {
             genes: (0..pool_size).map(|_| Gene::new(gene_size)).collect(),
         }
     }
+    /// Check if current DNA string is valid.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    /// let dna = DNA::new(2, 2);
+    ///
+    /// let is_valid = DNA::is_valid(dna.to_string());
+    /// ```
+    pub fn is_valid(dna_str: String) -> bool {
+        let pool_size_hex = &dna_str[0..8];
+        let dna = DNA::from(dna_str.clone());
+        if dna.get_sum() == utils::f32_from_str(pool_size_hex) {
+            return true;
+        }
+        return false;
+    }
     /// Merge two `DNA` into one
     ///
     /// # Examples
@@ -128,13 +146,29 @@ impl DNA {
     pub fn to_string(&self) -> String {
         let pool_size_hex: String = utils::u16_to_string(self.pool_size);
         let gene_size_hex: String = utils::u16_to_string(self.gene_size);
+        let check_sum: String = utils::f32_to_string(self.get_sum());
 
         format!(
-            "{}{}{}",
+            "{}{}{}{}",
+            check_sum,
             pool_size_hex,
             gene_size_hex,
             self.genes.iter().map(|m| m.to_string()).collect::<String>()
         )
+    }
+    /// Get checksum for the dna, return back f32 sum of all genes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::DNA;
+    ///
+    /// let dna1 = DNA::new(2, 2);
+    ///
+    /// let dna1_str = dna1.get_sum();
+    /// ```
+    pub fn get_sum(&self) -> f32 {
+        self.genes.iter().map(|g| g.get_sum()).sum()
     }
 }
 
@@ -153,9 +187,11 @@ impl std::convert::From<DNA> for String {
     fn from(dna: DNA) -> String {
         let pool_size_hex: String = utils::u16_to_string(dna.pool_size);
         let gene_size_hex: String = utils::u16_to_string(dna.gene_size);
+        let check_sum: String = utils::f32_to_string(dna.get_sum());
 
         format!(
-            "{}{}{}",
+            "{}{}{}{}",
+            check_sum,
             pool_size_hex,
             gene_size_hex,
             dna.genes.iter().map(|m| m.to_string()).collect::<String>()
@@ -177,9 +213,10 @@ impl std::convert::From<DNA> for String {
 /// ```
 impl std::convert::From<String> for DNA {
     fn from(dna: String) -> DNA {
-        let pool_size_hex = &dna[0..4];
-        let gene_size_hex = &dna[4..8];
-        let genes_hex = &dna[8..];
+        // Ignore the first 8 char for checksum
+        let pool_size_hex = &dna[8..12];
+        let gene_size_hex = &dna[12..16];
+        let genes_hex = &dna[16..];
 
         let gene_size = utils::u16_from_str(gene_size_hex);
 
