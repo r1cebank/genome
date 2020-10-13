@@ -197,6 +197,22 @@ impl Gene {
             }
         }
     }
+    /// Zero this gene
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use genome::Gene;
+    ///
+    /// let mut gene1 = Gene::new(2);
+    ///
+    /// gene1.zero();
+    /// ```
+    pub fn zero(&mut self) {
+        for i in 0..self.markers.len() {
+            self.set_marker(i, 0 as f32);
+        }
+    }
 }
 
 /// Convert gene to string
@@ -298,6 +314,12 @@ mod tests {
         let mut gene = Gene::new(1);
         gene.set_marker(0, 0 as f32);
         gene.set_marker(1, 0 as f32);
+        assert_eq!(gene.to_string(), "0000000000000000");
+    }
+    #[test]
+    fn should_zero_gene() {
+        let mut gene = Gene::new(1);
+        gene.zero();
         assert_eq!(gene.to_string(), "0000000000000000");
     }
 }

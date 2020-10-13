@@ -1,6 +1,6 @@
 [package]
 name = "genome"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["r1cebank <siyuangao@gmail.com>"]
 edition = "2018"
 description = "A simple package used to generate DNA used for GAN generator"
