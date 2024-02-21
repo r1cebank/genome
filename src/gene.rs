@@ -10,6 +10,19 @@ pub struct Gene {
     pub markers: Vec<Marker>,
 }
 
+#[macro_export]
+macro_rules! gene {
+    ($markers:expr) => {
+        Gene{
+            num_markers: $markers as u16,
+            markers: (0..($markers as u16 + 1))
+                .map(|_| marker::Marker::new())
+                .collect(),
+
+        }
+    };
+}
+
 /// First marker is influence
 impl Gene {
     /// Create a new gene
@@ -321,5 +334,10 @@ mod tests {
         let mut gene = Gene::new(1);
         gene.zero();
         assert_eq!(gene.to_string(), "0000000000000000");
+    }
+    #[test]
+    fn macro_test(){
+        let gene = gene!(10);
+        assert_eq!(gene.get_markers().len(), 10);
     }
 }
