@@ -10,6 +10,8 @@ pub struct Gene {
     pub markers: Vec<Marker>,
 }
 
+///Creates a new gene with $markers
+///markers.
 #[macro_export]
 macro_rules! gene {
     ($markers:expr) => {
