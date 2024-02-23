@@ -10,6 +10,21 @@ pub struct Gene {
     pub markers: Vec<Marker>,
 }
 
+///Creates a new gene with $markers
+///markers.
+#[macro_export]
+macro_rules! gene {
+    ($markers:expr) => {
+        Gene{
+            num_markers: $markers as u16,
+            markers: (0..($markers as u16 + 1))
+                .map(|_| marker::Marker::new())
+                .collect(),
+
+        }
+    };
+}
+
 /// First marker is influence
 impl Gene {
     /// Create a new gene
@@ -56,9 +71,9 @@ impl Gene {
     /// let gene1 = Gene::new(2);
     /// let gene2 = Gene::new(2);
     ///
-    /// let is_equal = Gene::is_equal(gene1, gene2);
+    /// let is_equal = Gene::is_equal(&gene1, &gene2);
     /// ```
-    pub fn is_equal(left_gene: Gene, right_gene: Gene) -> bool {
+    pub fn is_equal(left_gene: &Gene, right_gene: &Gene) -> bool {
         if left_gene.markers.len() != right_gene.markers.len() {
             return false;
         }
@@ -262,6 +277,12 @@ impl std::convert::From<String> for Gene {
     }
 }
 
+impl PartialEq for Gene {
+    fn eq(&self, other: &Self) -> bool {
+        Gene::is_equal(self, other)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -307,7 +328,23 @@ mod tests {
         let original_gene: Gene = string_value.clone().into();
         let restored_gene: Gene = string_value.clone().into();
 
-        assert!(Gene::is_equal(original_gene, restored_gene));
+        assert!(Gene::is_equal(&original_gene, &restored_gene));
+    }
+    #[test]
+    fn should_be_partial_eq(){
+        let gene = gene!(2);
+        let str_val: String = gene.into();
+        let original_gene: Gene = str_val.clone().into();
+        let restored_gene: Gene = str_val.clone().into();
+
+        assert!(original_gene == restored_gene)
+    }
+    #[test]
+    fn should_be_partial_ne(){
+        let gene1 = gene!(2);
+        let gene2 = gene!(3);
+
+        assert!(gene1 != gene2)
     }
     #[test]
     fn should_set_marker() {
@@ -321,5 +358,10 @@ mod tests {
         let mut gene = Gene::new(1);
         gene.zero();
         assert_eq!(gene.to_string(), "0000000000000000");
+    }
+    #[test]
+    fn macro_test(){
+        let gene = gene!(10);
+        assert_eq!(gene.get_markers().len(), 10);
     }
 }
